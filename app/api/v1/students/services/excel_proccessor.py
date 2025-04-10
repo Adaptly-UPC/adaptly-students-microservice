@@ -17,6 +17,7 @@ from app.api.v1.students.repositories.bimester import BimesterRepository
 from app.api.v1.students.repositories.achievement_levels import AchievementLevelsRepository
 from app.api.v1.students.repositories.calification import CalificationRepository
 from dataclasses import dataclass
+from app.api.v1.students.models import Alumno
 
 @dataclass
 class GenericData:
@@ -125,7 +126,7 @@ class ExcelProcessor:
     def should_skip_row(self, row_data: pd.Series) -> bool:
         return row_data.iloc[1] == "LEYENDA" or str(row_data.iloc[1]).startswith(("01 =", "02 =", "03 =", "04 ="))
 
-    def process_student_califications(self, row_data, generic_data: GenericData, critera_list: List[int], course_id: int) -> int:
+    def process_student_califications(self, row_data, generic_data: GenericData, critera_list: List[int], course_id: int) -> Alumno:
         """Procesa el archivo completo de excel y lo guarda en la base de datos de forma organizada"""
         student = self.student_repo.get_or_create_student(str(row_data.iloc[2]), str(row_data.iloc[1]))
 
@@ -171,14 +172,15 @@ class ExcelProcessor:
             except Exception as e:
                 return {"error": f"Error al procesar fila {row_data}: {str(e)}"}
 
-        return len(calification_list)
+        return student
 
     def process_excel(self, file_content: bytes):
         """Procesa el archivo completo de excel y lo guarda en la base de datos de forma organizada"""
         excel_data = pd.ExcelFile(io.BytesIO(file_content))
         base_data = self.extract_generic_data(excel_data)
         sheet_names = excel_data.sheet_names[1:]
-        total_alumnos = 0
+        student_list = []
+        student_ids = []
 
         for sheet_name in sheet_names:
             df = excel_data.parse(sheet_name, header=None)
@@ -221,9 +223,18 @@ class ExcelProcessor:
                             row.iloc[1].startswith("03 =")):
                         continue
 
-                    self.process_student_califications(row, base_data, evaluation_criteria_list, course.id)
+                    student = self.process_student_califications(row, base_data, evaluation_criteria_list, course.id)
+
+                    if student.id in student_ids:
+                        continue
+
+                    student_ids.append(student.id)
+                    student_list.append({
+                        "id": student.id,
+                        "name": student.nombre_completo
+                    })
 
                 except Exception as e:
                     return {"error": f"Error al procesar fila {row[1]}: {str(e)}"}
 
-        return {"total_alumnos": total_alumnos}
+        return {"notas_de_alumnos_actualizados": student_list, "total_notas_insertadas": len(student_list) }

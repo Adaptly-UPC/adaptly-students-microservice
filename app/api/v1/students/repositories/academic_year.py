@@ -17,10 +17,10 @@ class AcademicYearRepository:
         self.db.commit()
         return year
 
-    def get_or_create_academic_year(self, year: int) -> AnioAcademico:
+    def get_or_create_academic_year(self, year_param: int) -> AnioAcademico:
         """Obtiene o crea un nuevo año académico en la base de datos"""
-        year = self.get_academic_year_by_name(year)
+        year = self.get_academic_year_by_name(year_param)
         if not year:
-            year = self.create_academic_year(year)
+            year = self.create_academic_year(year_param)
         return year
 
