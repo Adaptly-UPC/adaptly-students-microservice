@@ -29,3 +29,11 @@ class CourseRepository:
         if not course:
             course = self.create_course(course_name, course_code)
         return course
+
+    def get_or_create_primary_course(self, course_name: str) -> Materia:
+        """Obtiene o crea una materia de Primaria en la base de datos"""
+        course = self.get_course_by_name(course_name, "")
+        if not course:
+            course = self.create_course(course_name, "")
+        return course
+

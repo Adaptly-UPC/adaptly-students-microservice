@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.api.v1.students.services.excel_inspect import inspect_excel
 
-from app.api.v1.students.services.excel_proccessor import ExcelProcessor
+from app.api.v1.students.services.excel_proccessor_high_level import ExcelProcessor as ExcelProcessorHighSchool
+from app.api.v1.students.services.excel_processor_primary_level import ExcelProcessor as ExcelProcessorPrimary
 
 router = APIRouter(
     prefix="/students",
@@ -19,8 +20,16 @@ async def upload_excel(file: UploadFile = File(...), db: Session = Depends(get_d
     return {"message": "Datos insertados correctamente", "rows_inserted": rows_inserted}
 
 
-@router.post("/save-excel/")
-async def parse_save_data(file: UploadFile = File(...), db: Session = Depends(get_db)):
-    processor = ExcelProcessor(db)
+@router.post("/save-high-school-grades/")
+async def parse_save_data(file: UploadFile = File(...), db: Session = Depends
+(get_db)):
+    processor = ExcelProcessorHighSchool(db)
     excel_content = await file.read()
     return processor.process_excel(excel_content)
+
+
+@router.post("/save-primary-grades/")
+async def parse_save_primary_data(file: UploadFile = File(...), db: Session = Depends(get_db)):
+    processor = ExcelProcessorPrimary(db)
+    excel_content = await file.read()
+    return processor.process_student_califications(excel_content)

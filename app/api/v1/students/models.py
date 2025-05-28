@@ -71,7 +71,7 @@ class CriterioEvaluacion(Base):
     __tablename__ = "criterios_evaluacion"
     id = Column(Integer, primary_key=True, index=True)
     materia_id = Column(Integer, ForeignKey("materias.id"), nullable=False)
-    nombre = Column(String(500), nullable=False)
+    nombre = Column(String(), nullable=False)
 
 class NivelLogro(Base):
     __tablename__ = "niveles_logro"

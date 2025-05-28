@@ -3,21 +3,11 @@ import pandas as pd
 import json
 import os
 import string
-from typing import Dict, List
-from sqlalchemy.orm import Session
-from app.api.v1.students.repositories.student import StudentRepository
-from app.api.v1.students.repositories.course import CourseRepository
-from app.api.v1.students.repositories.academic_history import AcademicHistoryRepository
-from app.api.v1.students.repositories.degree import DegreeRepository
-from app.api.v1.students.repositories.evaluation_criteria import EvaluationCriteriaRepository
-from app.api.v1.students.repositories.academic_level import AcademicLevelRepository
-from app.api.v1.students.repositories.academic_year import AcademicYearRepository
-from app.api.v1.students.repositories.section import SectionRepository
-from app.api.v1.students.repositories.bimester import BimesterRepository
-from app.api.v1.students.repositories.achievement_levels import AchievementLevelsRepository
-from app.api.v1.students.repositories.calification import CalificationRepository
 from dataclasses import dataclass
+from typing import Dict, List
 from app.api.v1.students.models import Alumno
+from app.api.v1.students.services.base_grades_excel_processor import BaseExcelProcessor
+from sqlalchemy.orm import Session
 
 @dataclass
 class GenericData:
@@ -30,23 +20,9 @@ class GenericData:
     academic_year: dict
     modular_code: str
 
-class ExcelProcessor:
+
+class ExcelProcessor(BaseExcelProcessor):
     """Process the Excel file and save the data to the database."""
-    def __init__(self, db: Session):
-        self.db = db
-        self.student_repo = StudentRepository(db)
-        self.course_repo = CourseRepository(db)
-        self.academic_repo = AcademicHistoryRepository(db)
-        self.grade_repo = DegreeRepository(db)
-        self.criteria_repo = EvaluationCriteriaRepository(db)
-        self.level_repo = AcademicLevelRepository(db)
-        self.year_repo = AcademicYearRepository(db)
-        self.section_repo = SectionRepository(db)
-        self.bimester_repo = BimesterRepository(db)
-        self.achievement_repo = AchievementLevelsRepository(db)
-        self.calification_repo = CalificationRepository(db)
-
-
     def get_column_letter(self, col_idx):
         """Convierte índice de columna (0=A, 1=B, 2=C, ...) en formato de Excel"""
         result = ""
@@ -175,7 +151,7 @@ class ExcelProcessor:
         return student
 
     def process_excel(self, file_content: bytes):
-        """Procesa el archivo completo de excel y lo guarda en la base de datos de forma organizada"""
+        """Procesa el archivo completo de excel y lo guarda en la base de datos de forma organizada para alumnos de secundaria"""
         excel_data = pd.ExcelFile(io.BytesIO(file_content))
         base_data = self.extract_generic_data(excel_data)
         sheet_names = excel_data.sheet_names[1:]
