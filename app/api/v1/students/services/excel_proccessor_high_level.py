@@ -7,7 +7,6 @@ from dataclasses import dataclass
 from typing import Dict, List
 from app.api.v1.students.models import Alumno
 from app.api.v1.students.services.base_grades_excel_processor import BaseExcelProcessor
-from sqlalchemy.orm import Session
 
 @dataclass
 class GenericData:

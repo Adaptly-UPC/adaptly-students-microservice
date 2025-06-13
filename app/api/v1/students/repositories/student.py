@@ -22,6 +22,21 @@ class StudentRepository:
         self.db.commit()
         return student
 
+
+    def update_student(self, student_id, **kwargs):
+        age = kwargs.get("age", None)
+        gender = kwargs.get("gender", None)
+
+        if type(age) == int:
+            self.db.query(Alumno).filter(Alumno.id == student_id).update({"edad": age})
+            self.db.commit()
+
+        if type(gender) == str:
+            self.db.query(Alumno).filter(Alumno.id == student_id).update({"genero": gender})
+            self.db.commit()
+
+        return self.get_student_by_id(student_id)
+
     def get_or_create_student(self, student_name: str, student_code="", student_gender="MASCULINO") -> Alumno:
         """Crea alumno si no puede obtenerlo"""
         student = self.get_student_by_name(student_name)

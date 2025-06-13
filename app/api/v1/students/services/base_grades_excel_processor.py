@@ -10,6 +10,7 @@ from app.api.v1.students.repositories.section import SectionRepository
 from app.api.v1.students.repositories.bimester import BimesterRepository
 from app.api.v1.students.repositories.achievement_levels import AchievementLevelsRepository
 from app.api.v1.students.repositories.calification import CalificationRepository
+from app.api.v1.survey.repositories.survey import SurveyRepository
 
 class BaseExcelProcessor:
     def __init__(self, db: Session):
@@ -25,3 +26,4 @@ class BaseExcelProcessor:
         self.bimester_repo = BimesterRepository(db)
         self.achievement_repo = AchievementLevelsRepository(db)
         self.calification_repo = CalificationRepository(db)
+        self.survey_repo = SurveyRepository(db)

@@ -231,7 +231,7 @@ class ExcelProcessor(BaseExcelProcessor):
 
 
     def process_student_califications(self, csv_content: bytes):
-        """Procesa las calif    icaciones de los estudiantes de Primaria."""
+        """Procesa las calificaciones de los estudiantes de Primaria."""
         csv_df = pd.ExcelFile(io.BytesIO(csv_content))
 
         # csv_df = self.load_excel(csv_content)
