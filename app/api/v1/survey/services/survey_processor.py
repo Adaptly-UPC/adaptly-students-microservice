@@ -221,7 +221,12 @@ class SurveyProcessor(BaseExcelProcessor):
                 student_registered = self.student_repo.get_student_by_name(student_name)
 
                 if not student_registered:
-                    student_registered = self.student_repo.create_student(student_name, None)
+                    flexible_name = self.student_repo.find_student_by_flexible_name(student_name)
+
+                    if flexible_name:
+                        student_registered = flexible_name
+                    else:
+                        student_registered = self.student_repo.create_student(student_name, None)
 
                     if isinstance(age, int) == int:
                         self.student_repo.update_student(student_registered.id, age=age)
