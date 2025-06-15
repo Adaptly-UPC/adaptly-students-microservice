@@ -163,35 +163,10 @@ class RespuestaTextoEncuesta(Base):
     encuesta = relationship("Encuesta", back_populates="respuestas_texto")
     pregunta = relationship("PreguntaEncuesta")
 
-# Crear pregunta de tipo múltiple
-# p1 = PreguntaEncuesta(pregunta="¿Qué recursos utilizas para estudiar?", es_multiple=1)
+class RecommendationResult(Base):
+    __tablename__ = "recommendation_results"
 
-# # Agregar opciones a esa pregunta
-# p1.opciones = [
-#     OpcionEncuesta(opcion="Videos educativos"),
-#     OpcionEncuesta(opcion="Libros físicos"),
-#     OpcionEncuesta(opcion="Apuntes de clase"),
-#     OpcionEncuesta(opcion="Tutorías"),
-#     OpcionEncuesta(opcion="Apps digitales")
-# ]
-
-# # Guardar en la base de datos
-# session.add(p1)
-# session.commit()
-
-# # Crear encuesta para un alumno
-# encuesta = Encuesta(anio=2025, alumno_id=alumno.id)
-# session.add(encuesta)
-# session.commit()
-
-# # Supón que el alumno marcó “Videos educativos” y “Apuntes de clase”
-# video_opcion = session.query(OpcionEncuesta).filter_by(opcion="Videos educativos", pregunta_id=p1.id).first()
-# apuntes_opcion = session.query(OpcionEncuesta).filter_by(opcion="Apuntes de clase", pregunta_id=p1.id).first()
-
-# respuestas = [
-#     RespuestaEncuesta(encuesta_id=encuesta.id, pregunta_id=p1.id, opcion_id=video_opcion.id),
-#     RespuestaEncuesta(encuesta_id=encuesta.id, pregunta_id=p1.id, opcion_id=apuntes_opcion.id)
-# ]
-
-# session.add_all(respuestas)
-# session.commit()
+    id = Column(Integer, primary_key=True, index=True)
+    alumno_id = Column(Integer, ForeignKey("alumnos.id"), nullable=True)
+    riesgo_predicho = Column(String, nullable=False)
+    recomendaciones = Column(Text, nullable=False)

@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1.students.controllers import router as student_router
 from app.api.v1.common.controllers import router as common_router
 from app.api.v1.survey.controller import router as survey_router
+from app.api.v1.ml.ml_controller import router as ml_router
 from app.db.database import Base, engine
 from app.core.config import settings
 
@@ -21,7 +22,7 @@ app.add_middleware(
 app.include_router(student_router, prefix="/api/v1")
 app.include_router(common_router, prefix="/api/v1")
 app.include_router(survey_router, prefix="/api/v1")
-
+app.include_router(ml_router, prefix="/api/v1")
 
 @app.get("/", status_code=status.HTTP_200_OK)
 def read_root():

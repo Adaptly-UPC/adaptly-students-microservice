@@ -6,3 +6,7 @@ psycopg2-binary
 python-dotenv
 openpyxl
 pydantic-settings
+scikit-learn
+transformers
+mlxtend
+numpy
