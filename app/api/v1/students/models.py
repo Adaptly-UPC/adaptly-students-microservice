@@ -12,6 +12,12 @@ class Alumno(Base):
     edad = Column(Integer, nullable=True)
     genero = Column(String(10), nullable=False)  # 'masculino', 'femenino'
 
+    # Relación con HistorialAcademico
+    historial_academico = relationship("HistorialAcademico", back_populates="alumno")
+
+    # Relación con Encuesta
+    encuestas = relationship("Encuesta", back_populates="alumno")
+
 
 class NivelEducativo(Base):
     __tablename__ = "niveles_educativos"
@@ -40,11 +46,13 @@ class HistorialAcademico(Base):
     fecha_registro = Column(TIMESTAMP, server_default=func.now())
 
     # Relaciones
-    alumno = relationship("Alumno")
+    alumno = relationship("Alumno", back_populates="historial_academico")
     anio_academico = relationship("AnioAcademico")
     nivel = relationship("NivelEducativo")
     grado = relationship("Grado")
     seccion = relationship("Seccion")
+    notas = relationship("Nota", back_populates="historial_academico")
+
 
 
 class Grado(Base):
@@ -105,6 +113,7 @@ class Nota(Base):
     bimestre = relationship("Bimestre", lazy='joined')
     criterio_evaluacion = relationship("CriterioEvaluacion", lazy='joined')
     nivel_logro = relationship("NivelLogro", lazy='joined')
+    historial_academico = relationship("HistorialAcademico", back_populates="notas")
 
 class PreguntaEncuesta(Base):
     __tablename__ = "preguntas_encuesta"
@@ -135,7 +144,8 @@ class Encuesta(Base):
     alumno_id = Column(Integer, ForeignKey("alumnos.id"), nullable=False)
     fecha = Column(TIMESTAMP, server_default=func.now())
 
-    alumno = relationship("Alumno")
+    alumno = relationship("Alumno", back_populates="encuestas")
+
     respuestas = relationship("RespuestaEncuesta", back_populates="encuesta", cascade="all, delete-orphan")
     respuestas_texto = relationship("RespuestaTextoEncuesta", back_populates="encuesta", cascade="all, delete-orphan")
 

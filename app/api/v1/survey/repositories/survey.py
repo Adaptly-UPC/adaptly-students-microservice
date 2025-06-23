@@ -63,7 +63,6 @@ class SurveyRepository:
         """Obtiene opciones de la base de datos"""
         options_list = self.db.query(OpcionEncuesta).filter_by(pregunta_id=question_id).all()
         options = [{**self.as_dict(option), "id": option.id} for option in options_list]
-        print(f"OPCIONES THREEEE: {options}")
 
         return options
 

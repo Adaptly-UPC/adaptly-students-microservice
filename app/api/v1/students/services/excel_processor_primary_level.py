@@ -3,6 +3,7 @@ from dataclasses import dataclass
 import pandas as pd
 from app.api.v1.students.services.base_grades_excel_processor import BaseExcelProcessor
 from app.utils.retrieve_dregree import get_degree_by_number
+import re
 
 @dataclass
 class GenericData:
@@ -280,7 +281,7 @@ class ExcelProcessor(BaseExcelProcessor):
                 # """Al no tener bimestres en primaria, se replica las notas para todos los bimestres"""
 
                 ## Curso PERSONAL SOCIAL
-                course = self.course_repo.get_or_create_primary_course("PERSONAL SOCIAL")
+                course = self.course_repo.get_or_create_course("PERSONAL SOCIAL", self.generate_slug("PERSONAL SOCIAL"))
                 personal_social_califications_per_criteria = self.pesonal_social_calification(row)
 
                 for bimester in bimesters:
@@ -290,7 +291,7 @@ class ExcelProcessor(BaseExcelProcessor):
 
 
                 ## Curso EDUCACIÓN FÍSICA
-                course = self.course_repo.get_or_create_primary_course("EDUCACIÓN FÍSICA")
+                course = self.course_repo.get_or_create_course("EDUCACIÓN FÍSICA", self.generate_slug("EDUCACIÓN FÍSICA"))
                 fisica_califications_per_criteria = self.educacion_fisica_calification(row)
 
                 for bimester in bimesters:
@@ -299,7 +300,7 @@ class ExcelProcessor(BaseExcelProcessor):
                     self.save_student_califications(academic_history.id, course.id, current_bimester_obj.id, fisica_califications_per_criteria)
 
                 ## Curso COMUNICACIÓN
-                course = self.course_repo.get_or_create_primary_course("COMUNICACIÓN")
+                course = self.course_repo.get_or_create_course("COMUNICACIÓN", self.generate_slug("COMUNICACIÓN"))
                 comunicacion_califications_per_criteria = self.comunicacion_calification(row)
 
                 for bimester in bimesters:
@@ -308,7 +309,7 @@ class ExcelProcessor(BaseExcelProcessor):
                     self.save_student_califications(academic_history.id, course.id, current_bimester_obj.id, comunicacion_califications_per_criteria)
 
                 ### ARTE Y CULTURA
-                course = self.course_repo.get_or_create_primary_course("ARTE Y CULTURA")
+                course = self.course_repo.get_or_create_course("ARTE Y CULTURA", self.generate_slug("ARTE Y CULTURA"))
                 arte_y_cultura_califications_per_criteria = self.arte_y_cultura_calification(row)
 
                 for bimester in bimesters:
@@ -317,7 +318,7 @@ class ExcelProcessor(BaseExcelProcessor):
                     self.save_student_califications(academic_history.id, course.id, current_bimester_obj.id, arte_y_cultura_califications_per_criteria)
 
                 ### MATEMÁTICA
-                course = self.course_repo.get_or_create_primary_course("MATEMÁTICA")
+                course = self.course_repo.get_or_create_course("MATEMÁTICA", self.generate_slug("MATEMÁTICA"))
                 matematica_califications_per_criteria = self.matematica_calification(row)
 
                 for bimester in bimesters:
@@ -326,7 +327,7 @@ class ExcelProcessor(BaseExcelProcessor):
                     self.save_student_califications(academic_history.id, course.id, current_bimester_obj.id, matematica_califications_per_criteria)
 
                 ### CIENCIA Y TECNOLOGÍA
-                course = self.course_repo.get_or_create_primary_course("CIENCIA Y TECNOLOGÍA")
+                course = self.course_repo.get_or_create_course("CIENCIA Y TECNOLOGÍA", self.generate_slug("CIENCIA Y TECNOLOGÍA"))
                 ciencia_y_tecnologia_califications_per_criteria = self.ciencia_y_tecnologia_calification(row)
 
                 for bimester in bimesters:
@@ -335,7 +336,7 @@ class ExcelProcessor(BaseExcelProcessor):
                     self.save_student_califications(academic_history.id, course.id, current_bimester_obj.id, ciencia_y_tecnologia_califications_per_criteria)
 
                 ### EDUCACIÓN RELIGIOSA
-                course = self.course_repo.get_or_create_primary_course("EDUCACIÓN RELIGIOSA")
+                course = self.course_repo.get_or_create_course("EDUCACIÓN RELIGIOSA", self.generate_slug("EDUCACIÓN RELIGIOSA"))
                 educacion_religiosa_califications_per_criteria = self.educacion_religiosa_calification(row)
 
                 for bimester in bimesters:
@@ -343,8 +344,30 @@ class ExcelProcessor(BaseExcelProcessor):
 
                     self.save_student_califications(academic_history.id, course.id, current_bimester_obj.id, educacion_religiosa_califications_per_criteria)
 
-                ### OTRAS COMPETENCIAS
-                # TODO: Implement this section if needed
+    def generate_slug(self, course_name: str) -> str:
+        """
+        Genera un slug para el nombre del curso.
+        El slug estará en mayúsculas, sin espacios ni símbolos, y antecedido por 'PRIM-'.
+
+        Args:
+            course_name (str): Nombre del curso.
+
+        Returns:
+            str: Slug generado.
+        """
+        # Eliminar símbolos y caracteres especiales
+        slug = re.sub(r'[^a-zA-Z0-9]', '', course_name)
+        # Convertir a mayúsculas
+        slug = slug.upper()
+        # Anteceder con 'PRIM-'
+        return f"PRIM-{slug}"
+
+
+
+
+
+
+
 
 
 

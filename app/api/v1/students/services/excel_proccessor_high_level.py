@@ -180,7 +180,7 @@ class ExcelProcessor(BaseExcelProcessor):
 
             if not course:
                 course_name = self.get_course_name(sheet_name)
-                course = self.course_repo.create_course(sheet_name, course_name)
+                course = self.course_repo.create_course(course_name=course_name, course_code=sheet_name)
 
             evaluation_criteria_list = self.criteria_repo.get_evaluation_criteria_list(df, course.id)
 

@@ -105,7 +105,8 @@ class InsertBaseData:
         ]
 
         for course in courses_to_insert:
-            self.course_repo.get_or_create_course(course['name'], course['code'])
+            self.course_repo.get_or_create_course(course_name=course['name'],
+                                                   course_code=course['code'])
 
 
     def insert_sections(self):
