@@ -37,10 +37,8 @@ class HistorialAcademico(Base):
     __tablename__ = "historial_academico"
     id = Column(Integer, primary_key=True, index=True)
     alumno_id = Column(Integer, ForeignKey("alumnos.id"), nullable=False)
-    anio_academico_id = Column(Integer, ForeignKey(
-        "anios_academicos.id"), nullable=False)
-    nivel_id = Column(Integer, ForeignKey(
-        "niveles_educativos.id"), nullable=False)
+    anio_academico_id = Column(Integer, ForeignKey("anios_academicos.id"), nullable=False)
+    nivel_id = Column(Integer, ForeignKey("niveles_educativos.id"), nullable=False)
     grado_id = Column(Integer, ForeignKey("grados.id"), nullable=False)
     seccion_id = Column(Integer, ForeignKey("secciones.id"), nullable=False)
     fecha_registro = Column(TIMESTAMP, server_default=func.now())
@@ -49,8 +47,8 @@ class HistorialAcademico(Base):
     alumno = relationship("Alumno", back_populates="historial_academico")
     anio_academico = relationship("AnioAcademico")
     nivel = relationship("NivelEducativo")
-    grado = relationship("Grado")
-    seccion = relationship("Seccion")
+    grado = relationship("Grado", back_populates="historial_academico")
+    seccion = relationship("Seccion", back_populates="historial_academico")
     notas = relationship("Nota", back_populates="historial_academico")
 
 
@@ -59,15 +57,18 @@ class Grado(Base):
     __tablename__ = "grados"
     id = Column(Integer, primary_key=True, index=True)
     nombre = Column(String(50), nullable=False)
-    nivel_id = Column(Integer, ForeignKey(
-        "niveles_educativos.id"), nullable=False)
+    nivel_id = Column(Integer, ForeignKey("niveles_educativos.id"), nullable=False)
     nivel = relationship("NivelEducativo")
+
+    # Relación con HistorialAcademico
+    historial_academico = relationship("HistorialAcademico", back_populates="grado")
 
 
 class Seccion(Base):
     __tablename__ = "secciones"
     id = Column(Integer, primary_key=True, index=True)
     nombre = Column(String(50), nullable=False)
+    historial_academico = relationship("HistorialAcademico", back_populates="seccion")
 
 class Materia(Base):
     __tablename__ = "materias"
