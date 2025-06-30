@@ -1,6 +1,9 @@
+from pydantic import InstanceOf
 from app.api.v1.students.models import Alumno, HistorialAcademico, Encuesta, Nota, RespuestaEncuesta, Materia, Bimestre, AnioAcademico, Seccion, NivelEducativo, Grado
 from sqlalchemy.orm import joinedload
 from sqlalchemy import func
+
+from app.api.v1.students.repositories import achievement_levels
 
 class StudentRepository:
     def __init__(self, db):
@@ -484,6 +487,9 @@ class StudentRepository:
                 }
 
                 for nota in record.notas:
+                    if nota.nivel_logro.valor == "No calificado" or nota.nivel_logro.valor is None:
+                        continue
+
                     subject_data = {
                         "subject": nota.materia.nombre,
                         "achievement_level": nota.nivel_logro.valor if nota.nivel_logro else None,
@@ -518,11 +524,12 @@ class StudentRepository:
                 student_data = {
                     "student_id": student.id,
                     "survey_responses": [],
-                    "academic_indicators": {
-                        "attendance": [],
-                        "participation": [],
-                        "homework_completion": []
-                    }
+                    # TODO: Implementar
+                    # "academic_indicators": {
+                    #     "attendance": [],
+                    #     "participation": [],
+                    #     "homework_completion": []
+                    # }
                 }
 
                 # Procesar encuestas
@@ -545,6 +552,14 @@ class StudentRepository:
             "total_records": len(behavior_data),
             "behavior_data": behavior_data
         }
+    
+    def materia_exist(self, materia_list: list, current_materia_id: int) -> int: 
+        value: int = -1
+        for index, materia in enumerate(materia_list):
+            if materia.get("materia_id") == current_materia_id:
+                value = index
+        print(f"VALUEEEERRRRR: {value}")
+        return value
 
     def get_complete_student_profile(self, analysis_type: str = "all"):
         """
@@ -574,11 +589,11 @@ class StudentRepository:
                 },
                 "academic_history": [],
                 "survey_data": [],
-                "performance_metrics": {
-                    "average_achievement": None,
-                    "risk_level": None,
-                    "improvement_areas": []
-                }
+                # "performance_metrics": {
+                #     "average_achievement": None,
+                #     "risk_level": None,
+                #     "improvement_areas": []
+                # }
             }
 
             # Procesar historial académico
@@ -594,14 +609,27 @@ class StudentRepository:
                                 "bimestre_nombre": nota.bimestre.nombre,
                                 "materias": []
                             }
+                        if nota.nivel_logro.valor == "No calificado" or nota.nivel_logro.valor is None:
+                            # TODO: Limpiar base de datos si alumno no cuenta con notas de algún curso
+                            continue
 
-                        bimestres[bimestre_id]["materias"].append({
-                            "name": nota.materia.nombre,
-                            "materia_id": nota.materia.id,
-                            "achievement": nota.nivel_logro.valor if nota.nivel_logro else None,
-                            "evaluation_criteria": nota.criterio_evaluacion.nombre,
-                            "valor_criterio": nota.valor_criterio_de_evaluacion
-                        })
+                        materia_index = self.materia_exist(bimestres[bimestre_id]["materias"], nota.materia.id)
+                        if materia_index >=0:
+                            bimestres[bimestre_id]["materias"][materia_index]["grades"].append({        
+                                "achievement": nota.nivel_logro.valor if nota.nivel_logro else None,
+                                "evaluation_criteria": nota.criterio_evaluacion.nombre,
+                                "valor_criterio": nota.valor_criterio_de_evaluacion})  
+                            # })
+                        else:
+                            bimestres[bimestre_id]["materias"].append({
+                                "name": nota.materia.nombre,
+                                "materia_id": nota.materia.id,
+                                "grades": [{        
+                                    "achievement": nota.nivel_logro.valor if nota.nivel_logro else None,
+                                    "evaluation_criteria": nota.criterio_evaluacion.nombre,
+                                    "valor_criterio": nota.valor_criterio_de_evaluacion}]
+                            })
+
 
                     academic_period = {
                         "year": record.anio_academico.anio,
@@ -615,34 +643,34 @@ class StudentRepository:
                     profile["academic_history"].append(academic_period)
 
                 # Calcular métricas de rendimiento
-                total_grades = 0
-                count_grades = 0
-                risk_count = 0
-                improvement_areas = set()
+                # total_grades = 0
+                # count_grades = 0
+                # risk_count = 0
+                # improvement_areas = set()
 
-                for period in profile["academic_history"]:
-                    for bimestre in period["bimestres"]:
-                        for materia in bimestre["materias"]:
-                            if materia["achievement"]:
-                                if materia["achievement"] in ['C', 'D']:
-                                    risk_count += 1
-                                    improvement_areas.add(materia["name"])
-                                # Convertir nivel de logro a valor numérico
-                                grade_value = {
-                                    'AD': 4,
-                                    'A': 3,
-                                    'B': 2,
-                                    'C': 1,
-                                    'D': 0
-                                }.get(materia["achievement"], 0)
-                                total_grades += grade_value
-                                count_grades += 1
+                # for period in profile["academic_history"]:
+                #     for bimestre in period["bimestres"]:
+                #         for materia in bimestre["materias"]:
+                #             if materia["achievement"]:
+                #                 if materia["achievement"] in ['C', 'D']:
+                #                     risk_count += 1
+                #                     improvement_areas.add(materia["name"])
+                #                 # Convertir nivel de logro a valor numérico
+                #                 grade_value = {
+                #                     'AD': 4,
+                #                     'A': 3,
+                #                     'B': 2,
+                #                     'C': 1,
+                #                     'D': 0
+                #                 }.get(materia["achievement"], 0)
+                #                 total_grades += grade_value
+                #                 count_grades += 1
 
                 # Actualizar métricas de rendimiento
-                if count_grades > 0:
-                    profile["performance_metrics"]["average_achievement"] = round(total_grades / count_grades, 2)
-                    profile["performance_metrics"]["risk_level"] = "Alto" if risk_count > count_grades * 0.3 else "Medio" if risk_count > 0 else "Bajo"
-                    profile["performance_metrics"]["improvement_areas"] = list(improvement_areas)
+                # if count_grades > 0:
+                #     profile["performance_metrics"]["average_achievement"] = round(total_grades / count_grades, 2)
+                #     profile["performance_metrics"]["risk_level"] = "Alto" if risk_count > count_grades * 0.3 else "Medio" if risk_count > 0 else "Bajo"
+                #     profile["performance_metrics"]["improvement_areas"] = list(improvement_areas)
 
             # Procesar encuestas
             if hasattr(student, 'encuestas'):

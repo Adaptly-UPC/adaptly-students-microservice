@@ -170,7 +170,7 @@ class ExcelProcessor(BaseExcelProcessor):
                 df = df.iloc[2:]
                 df.columns = ["indice"] + column_names
             except Exception as e:
-                print(f"Error en hoja {sheet_name}, fila {row.name}: {str(e)}")
+                print(f"Error en hoja {sheet_name}, {str(e)}")
                 continue
 
             course = self.course_repo.get_course_by_code(sheet_name)
